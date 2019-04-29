@@ -155,3 +155,9 @@ export function swatchByMode(
         };
     };
 }
+
+export function findClosestBackgroundIndex(designSystem: DesignSystem): number {
+    return findClosestSwatchIndex(PaletteType.neutral, backgroundColor(designSystem))(
+        designSystem
+    );
+}

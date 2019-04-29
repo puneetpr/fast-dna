@@ -187,3 +187,13 @@ export function luminance(color: any): number {
 
     return parsedColor === null ? -1 : rgbToLuminance(parsedColor);
 }
+
+export function designSystemResolverMax(
+    ...args: Array<DesignSystemResolver<number>>
+): DesignSystemResolver<number> {
+    return (designSystem: DesignSystem): number =>
+        Math.max.apply(
+            null,
+            args.map((fn: DesignSystemResolver<number>) => fn(designSystem))
+        );
+}
