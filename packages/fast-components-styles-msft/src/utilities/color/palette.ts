@@ -1,13 +1,12 @@
+import { clamp } from "lodash-es";
 import defaultDesignSystem, {
     DesignSystem,
     DesignSystemResolver,
 } from "../../design-system";
-import { clamp } from "lodash-es";
+import { backgroundColor } from "../../utilities/design-system";
+import { accentPalette, neutralPalette } from "../design-system";
 import { colorMatches, contrast, luminance, Swatch } from "./common";
 import { neutralForegroundDark, neutralForegroundLight } from "./neutral-foreground";
-import { ColorPalette, ColorRGBA64 } from "@microsoft/fast-colors";
-import { accentPalette, neutralPalette } from "../design-system";
-import { backgroundColor } from "../../utilities/design-system";
 
 /**
  * The named palettes of the MSFT design system
