@@ -6,9 +6,12 @@ import { SelectClassNameContract } from "@microsoft/fast-components-class-name-c
 import { SelectHandledProps, SelectProps, SelectUnhandledProps } from "./select.props";
 import { ListboxItemProps } from "../listbox-item";
 import Listbox from "../listbox";
-import Button from "../button";
 import { canUseDOM } from "exenv-es6";
 import { DisplayNamePrefix } from "../utilities";
+import ViewportPositioner, {
+    VerticalPosition,
+    HorizontalPosition,
+} from "../viewport-positioner";
 
 export interface SelectState {
     value: string | string[];
@@ -50,6 +53,8 @@ class Select extends Foundation<SelectHandledProps, SelectUnhandledProps, Select
     private rootElement: React.RefObject<HTMLDivElement> = React.createRef<
         HTMLDivElement
     >();
+
+    private triggerElementRef: React.RefObject<Element> = null;
 
     /**
      * constructor
@@ -138,6 +143,7 @@ class Select extends Foundation<SelectHandledProps, SelectUnhandledProps, Select
                 className={this.generateClassNames()}
                 onKeyDown={this.handleKeydown}
                 onClick={this.handleClick}
+                onScrollCapture={this.onScrollCapture}
             >
                 {this.renderTrigger()}
                 {this.renderHiddenSelectElement()}
@@ -245,25 +251,31 @@ class Select extends Foundation<SelectHandledProps, SelectUnhandledProps, Select
             shouldFocusOnMount = this.props.multiselectable;
         }
         return (
-            <Listbox
-                labelledBy={this.props.labelledBy}
-                disabled={this.props.disabled}
-                focusItemOnMount={shouldFocusOnMount}
-                multiselectable={this.props.multiselectable}
-                defaultSelection={this.state.selectedItems}
-                selectedItems={this.props.selectedItems}
-                onSelectedItemsChanged={this.updateSelection}
-                managedClasses={{
-                    listbox: get(this.props.managedClasses, "select_menu", ""),
-                    listbox__disabled: get(
-                        this.props.managedClasses,
-                        "select_menuDisabled",
-                        ""
-                    ),
-                }}
+            <ViewportPositioner
+                defaultVerticalPosition={VerticalPosition.top}
+                defaultHorizontalPosition={HorizontalPosition.right}
+                anchor={this.rootElement}
             >
-                {this.props.children}
-            </Listbox>
+                <Listbox
+                    labelledBy={this.props.labelledBy}
+                    disabled={this.props.disabled}
+                    focusItemOnMount={shouldFocusOnMount}
+                    multiselectable={this.props.multiselectable}
+                    defaultSelection={this.state.selectedItems}
+                    selectedItems={this.props.selectedItems}
+                    onSelectedItemsChanged={this.updateSelection}
+                    managedClasses={{
+                        listbox: get(this.props.managedClasses, "select_menu", ""),
+                        listbox__disabled: get(
+                            this.props.managedClasses,
+                            "select_menuDisabled",
+                            ""
+                        ),
+                    }}
+                >
+                    {this.props.children}
+                </Listbox>
+            </ViewportPositioner>
         );
     }
 
@@ -346,14 +358,14 @@ class Select extends Foundation<SelectHandledProps, SelectUnhandledProps, Select
             return null;
         }
         return (
-            <Button
+            <button
                 disabled={props.disabled}
                 aria-labelledby={props.labelledBy || null}
                 aria-haspopup={true}
                 aria-expanded={state.isMenuOpen}
             >
                 {state.displayString}
-            </Button>
+            </button>
         );
     };
 
@@ -373,6 +385,12 @@ class Select extends Foundation<SelectHandledProps, SelectUnhandledProps, Select
         );
 
         return selectedOptions.length > 0 ? optionValues.join(", ") : placeholder;
+    };
+
+    private onScrollCapture = (e: React.UIEvent): void => {
+        if (this.props.disabled) {
+            return;
+        }
     };
 
     /**
